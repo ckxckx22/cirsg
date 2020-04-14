@@ -222,6 +222,8 @@ library(eeptools)
         rowSums(neodf[paste0("neoffi_", c(20,40,45,50))], na.rm=FALSE)->neodf$Consc_DEP
         #Total
         rowSums(neodf[,c("Consc_ORD","Consc_GS", "Consc_DEP")])->neodf$Consc_Total
+        neodf$event<-NULL
+        neodf[!grepl("neoffi",names(neodf))]->neodf
         #How many
         nrow(neodf[which(neodf$masterdemoid %in% cirs3$masterdemoid),])
 #Get Social Support Document, Perceived Burdensomness
@@ -235,6 +237,7 @@ library(eeptools)
         ssddf[-which(duplicated(ssddf[-2])),]->ssddf
           #2 duplicated, remove as both are idecide
           any(duplicated(ssddf$masterdemoid))
+          ssddf$event<-NULL
           nrow(ssddf[which(ssddf$masterdemoid %in% cirs3$masterdemoid),])
           
       #PB
@@ -249,5 +252,11 @@ library(eeptools)
         pbdf[which(grepl("baseline",pbdf$event)),]->pbdf
           #one duplicated with different data, remove later
           pbdf[-which(duplicated(pbdf$masterdemoid)),]->pbdf
+          pbdf$event<-NULL
           nrow(pbdf[which(pbdf$masterdemoid %in% cirs3$masterdemoid),])
-        
+#Merge into main df
+    merge(cirs3,scores, by="masterdemoid", all.x = T)->cirs4
+    merge(cirs4, neodf, by="masterdemoid", all.x = T)->cirs5
+    merge(cirs5, ssddf, by="masterdemoid", all.x = T)->cirs6
+    merge(cirs6, pbdf, by="masterdemoid", all.x = T)->cirs7
+    

@@ -3,7 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(ggpubr)
 #setup
-cirs3->CIRS
+cirs7->CIRS
 #1st baseline only
   CIRS[which(grepl("baseline",CIRS$event)),]->cirsbl
   cirsbl[which(!grepl("catchup",cirsbl$event)),]->cirsbl
@@ -45,6 +45,40 @@ ggplot(cirsbl) + geom_histogram(aes(x=cirsbl$cirsg_13_s), bins=5)->m
 ggarrange(a,b,c,d,e,f,g,h,i,j,k,l,m,
           labels = c("1", "2", "3","4","5","6","7","8","9","10","11","12", "13"),
           ncol = 5, nrow = 3)
+
+#Correlation plot of baseline only
+library(corrplot)
+library(RColorBrewer)
+names(cirsbl)
+#Full cirs corrplots
+cor1<-cor(x=cirsbl[c(paste("cirsg_",1:13,"_s",sep=""),"cirs_sum","cirs_morethan3")], 
+    use="pairwise.complete.obs")
+
+corrplot(cor1, type="upper", order="hclust",
+         method="number")
+
+cor2<-cor(x=cirsbl[c(paste("cirsg_",1:13,"_s",sep=""),
+                     "cirs_sum","cirs_morethan3",
+            names(cirsbl)[grepl("PD",names(cirsbl)) 
+                          & ! grepl("presence",names(cirsbl))])],
+          use="pairwise.complete.obs")
+corrplot(cor2, type="upper",
+         method = "number")
+
+cor3<-cor(x=cirsbl[c(paste("cirsg_",1:13,"_s",sep=""),
+                     "cirs_sum","cirs_morethan3",
+            names(cirsbl)[grepl("ssd",names(cirsbl)) 
+                          & ! grepl("hours|other",names(cirsbl))])],
+          use="pairwise.complete.obs")
+corrplot(cor3, type="upper",
+         method="number")
+
+cor4<-cor(x=cirsbl[c(paste("cirsg_",1:13,"_s",sep=""),
+                     "cirs_sum","cirs_morethan3",
+            names(cirsbl)[grepl("pb",names(cirsbl))])],
+          use="pairwise.complete.obs")
+corrplot(cor4, type="upper",
+         method = "number")
 
 #Who has followup data and how far out (remove those without sum data)
 CIRS[-which(is.na(CIRS$cirs_sum)),]->CIRS2
